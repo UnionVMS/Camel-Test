@@ -19,12 +19,15 @@ import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Consume;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jms.JmsComponent;
+import org.apache.camel.component.log.LogComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
 import java.util.Date;
+import java.util.InputMismatchException;
 
 /**
  * An example class for demonstrating some of the basics behind Camel. This
@@ -44,7 +47,13 @@ public final class CamelJmsToFileExample {
         // START SNIPPET: e2
         ConnectionFactory connectionFactory = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
         // Note we can explicit name the component
-        context.addComponent("test-jms", JmsComponent.jmsComponentAutoAcknowledge(connectionFactory));
+        context.addComponent("NeedToCook", JmsComponent.jmsComponentAutoAcknowledge(connectionFactory));
+
+        context.addComponent("NeedToEat", JmsComponent.jmsComponentAutoAcknowledge(connectionFactory));
+
+        context.addComponent("ThrowOut", JmsComponent.jmsComponentAutoAcknowledge(connectionFactory));
+
+        context.addComponent("logger", new LogComponent());
         // END SNIPPET: e2
         // Add some configuration by hand ...
         // START SNIPPET: e3
@@ -53,17 +62,22 @@ public final class CamelJmsToFileExample {
                 from("seda:test-jms:queue:test.queue?concurrentConsumers=4").delay(500).to("file://test");
             }
         });*/
-        context.addRoutes(new RouteBuilder() {
+        /*context.addRoutes(new RouteBuilder() {
             public void configure() {
-                from("seda:test-jms:queue:test.queue?concurrentConsumers=4").delay(500).bean(Consumer.class, "consumer");
+                //errorHandler(defaultErrorHandler().maximumRedeliveries(-1));//.log("Redelivery of: ${body}"));
+                onException(InputMismatchException.class).log("exception").delay(1000).bean(Consumer.class, "cook");
+
+                from("seda:NeedToCook:queue:test.queue?concurrentConsumers=4").errorHandler(defaultErrorHandler().maximumRedeliveries(5)).delay(500).bean(Consumer.class, "cook");
             }
         });
 
         context.addRoutes(new RouteBuilder() {
             public void configure() {
-                from("test-jms2:queue:test.queue").delay(500).bean(Consumer.class, "consumer");
+                from("seda:NeedToEat:queue:test.queue2?concurrentConsumers=2").threads(3).delay(1000).bean(Consumer.class, "consumer");
             }
-        });
+        });*/
+
+        context.addRoutes(new CamelRouting());
         // END SNIPPET: e3
         // Camel template - a handy class for kicking off exchanges
         // START SNIPPET: e4
@@ -81,9 +95,10 @@ public final class CamelJmsToFileExample {
         // The listener on the file component gets notified when new files are
         // found ... that's it!
         // START SNIPPET: e5
-        for (int i = 0; i < 100; i++) {
-            template.sendBody("test-jms:queue:test.queue", "Time: " + new Date().toString() + " Test Message: " + i);
+        for (int i = 0; i < 50; i++) {
+            //template.sendBody("NeedToCook:queue:test.queue", "Time: " + new Date().toString() + " Test Message: " + i);
             //template.sendBody("seda:test-jms:queue:test.queue", "Thread: " + Thread.currentThread().getId() + " Test Message: " + i);
+            template.sendBody("NeedToCook:queue:test.queue", "" + i);
         }
         // END SNIPPET: e5
 
@@ -91,4 +106,9 @@ public final class CamelJmsToFileExample {
         Thread.sleep(10000);
         context.stop();
     }
+
+    /*@Consume(uri="NeedToEat")
+    public static void consumer(String s){
+        System.out.println("Ate: " + s);
+    }*/
 }
