@@ -42,6 +42,10 @@ public final class CamelJmsToFileExample {
     public static void main(String args[]) throws Exception {
         // START SNIPPET: e1
         CamelContext context = new DefaultCamelContext();
+
+        context.setTracing(true);
+
+
         // END SNIPPET: e1
         // Set up the ActiveMQ JMS Components
         // START SNIPPET: e2
@@ -98,11 +102,13 @@ public final class CamelJmsToFileExample {
         for (int i = 0; i < 50; i++) {
             //template.sendBody("NeedToCook:queue:test.queue", "Time: " + new Date().toString() + " Test Message: " + i);
             //template.sendBody("seda:test-jms:queue:test.queue", "Thread: " + Thread.currentThread().getId() + " Test Message: " + i);
-            template.sendBody("NeedToCook:queue:test.queue", "" + i);
+            Thread.sleep(200);
+            template.sendBody("seda:NeedToCook:queue:test.queue?concurrentConsumers=1", "" + i);
         }
         // END SNIPPET: e5
 
         // wait a bit and then stop
+        System.out.println("" + Thread.currentThread().getId());
         Thread.sleep(10000);
         context.stop();
     }
