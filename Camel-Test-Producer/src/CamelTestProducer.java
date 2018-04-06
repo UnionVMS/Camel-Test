@@ -1,5 +1,5 @@
 
-import javax.jms.ConnectionFactory;
+/*import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.camel.CamelContext;
@@ -17,7 +17,7 @@ import java.util.InputMismatchException;
  * An example class for demonstrating some of the basics behind Camel. This
  * example sends some text messages on to a JMS Queue, consumes them and
  * persists them to disk
- */
+ *//*
 public final class CamelTestProducer {
 
     private CamelJmsToFileExample() {
@@ -83,7 +83,7 @@ public final class CamelTestProducer {
         // The listener on the file component gets notified when new files are
         // found ... that's it!
         // START SNIPPET: e5
-        for (int i = 0; i < 50; i++) {
+      /*  for (int i = 0; i < 50; i++) {
             //template.sendBody("NeedToCook:queue:test.queue", "Time: " + new Date().toString() + " Test Message: " + i);
             //template.sendBody("seda:test-jms:queue:test.queue", "Thread: " + Thread.currentThread().getId() + " Test Message: " + i);
             Thread.sleep(200);
@@ -103,4 +103,4 @@ public final class CamelTestProducer {
     public static void consumer(String s){
         System.out.println("Ate: " + s);
     }*/
-}
+/*}*/
