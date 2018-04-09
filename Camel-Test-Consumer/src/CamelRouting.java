@@ -1,29 +1,42 @@
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.RuntimeCamelException;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.processor.DeadLetterChannel;
+import org.apache.camel.cdi.ContextName;
+import org.apache.camel.component.jms.JmsComponent;
 
-import java.util.InputMismatchException;
-import java.util.function.Consumer;
 
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.jms.ConnectionFactory;
+
+@ApplicationScoped
+@Startup
+@ContextName("cdi-context")
 public class CamelRouting extends RouteBuilder {
 
+    @Inject
+    @ContextName("cdi-context")
+    private CamelContext context;
+
     @Override
-    public void configure() {
+    public void configure() throws Exception {
 
-        getContext().setHandleFault(true);
-        //onException(InputMismatchException.class, RuntimeCamelException.class).log(LoggingLevel.DEBUG,"redelivery").maximumRedeliveries(-5).log(LoggingLevel.ERROR,"exception").bean(Consumer.class, "throwAway");
-        onException(InputMismatchException.class, RuntimeCamelException.class).bean(Consumer.class, "throwAway").handled(true);
-        //errorHandler(defaultErrorHandler().maximumRedeliveries(-1).redeliveryDelay(10));
-        //errorHandler(de);
+        ConnectionFactory connectionFactory =
+                new ActiveMQConnectionFactory("tcp://localhost:61616");
+
+        // Add the JMS connection factory as a Camel component. The name
+        //  'myjms' is abitrary, but will be used in specifying the route
+        //  later
+        context.addComponent("myjms",
+                JmsComponent.jmsComponentAutoAcknowledge(connectionFactory));
+
+        System.out.println("Life on venus");
 
 
 
-        //from("seda:NeedToCook:queue:test.queue?concurrentConsumers=4").delay(500).bean(Consumer.class, "cook");
-        from("seda:activeMQ:queue:fromAtoB?concurrentConsumers=1").threads(3).delay(600).to("log:throughput?groupSize=10").log("${threadName}").bean(Consumer.class, "cook");
-        //from("NeedToCook:queue:test.queue").delay(200).doTry().bean(Consumer.class, "cook").doCatch(InputMismatchException.class).bean(Consumer.class, "throwAway").end();
-
-        //from("seda:NeedToEat:queue:test.queue2?concurrentConsumers=2").log("To consumer").delay(100).threads(3).delay(1000).bean(Consumer.class, "consumer");
-        //from("NeedToEat:queue:test.queue2").log("To consumer").delay(100).threads(2).delay(1000).bean(Consumer.class, "consumer");
+        from("myjms:queue:needToEat").log("Beatheart").delay(500).bean(Consumer.class, "eat");
     }
 }

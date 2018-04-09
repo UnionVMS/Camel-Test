@@ -28,11 +28,13 @@
 	</build>
 	
 	<dependencies>
+		<!--
 		<dependency>
 		  <groupId>org.apache.activemq</groupId>
 		  <artifactId>activemq-all</artifactId>
 		  <version>5.15.3</version>
 		</dependency>
+		-->
 		<dependency>
 		  <groupId>org.apache.camel</groupId>
 		  <artifactId>camel-core</artifactId>
@@ -43,6 +45,7 @@
 			<artifactId>camel-jms</artifactId>
 			<version>2.21.0</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>javax.jms</groupId>
 			<artifactId>javax.jms-api</artifactId>
@@ -53,16 +56,19 @@
 			<artifactId>javax.ejb-api</artifactId>
 			<version>3.2.2</version>
 		</dependency>
+		-->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
             <version>7.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-all</artifactId>
             <version>5.15.3</version>
         </dependency>
+
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-cdi</artifactId>

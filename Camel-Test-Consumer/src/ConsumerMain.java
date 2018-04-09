@@ -14,7 +14,7 @@ import javax.ejb.Startup;
 public class ConsumerMain {
 
 
-    public static void main(String[] args){
+  /*  public static void main(String[] args){
         JOptionPane.showMessageDialog(null,"yay");
         System.out.println("YaY");
     }

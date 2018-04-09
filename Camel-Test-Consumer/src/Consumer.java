@@ -9,25 +9,14 @@ public class Consumer {
     @Produce
     private ProducerTemplate template;
 
-    @Consume(uri="activeMQ:queue:fromAtoB")
-    public String cook(String s) {//throws Exception{
-        if(Math.random() > 0.9){
-            System.out.println("Exception for " + s);
-            throw new InputMismatchException("Burnt Food " + s);
-        }
-        String s2 = s.concat(" Boiled");
-        System.out.println(s2);
-        //return template.requestBody("NeedToEat:queue:test.queue2", s2, String.class);
-        return s2;
-    }
 
-    @Consume(uri="NeedToEat:queue:test.queue2")
-    public void consumer(String s){
+    @Consume(uri="myjms:queue:needToEat")
+    public void eat(String s){
         System.out.println("Ate: " + s);
     }
 
     //@Consume(uri="ThrowOut:queue:test.queue3")
-    @Consume(uri="activeMQ:queue:fromBtoA")
+    //@Consume(uri="activeMQ:queue:fromBtoA")
     public void throwAway(String s){
         System.out.println("Threw out: " + s);
     }

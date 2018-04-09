@@ -7,11 +7,12 @@ import java.util.InputMismatchException;
 
 public class Consumer {
 
-    @Produce
+    @Produce  //for use if you want to send messages to camel endpoints
     private ProducerTemplate template;
 
-    @Consume(uri="timer:order")
-    public String cook(String s) {//throws Exception{
+    @Consume(uri="timer:order") //needed to show from what route this is intended to consume
+    public String cook(String s) {//throws Exception{ //camel will attempt to automaticly match the message to corresponding invalues
+                                                        //You can give more specific information about matching in the route
         if(s==null){
             s = "";
         }
@@ -22,7 +23,13 @@ public class Consumer {
         String s2 = s.concat(" Boiled");
         System.out.println(s2);
         //return template.requestBody("NeedToEat:queue:test.queue2", s2, String.class);
-        return s2;
+        return s2;   //return value will become new body of the message
+    }
+
+    int number = 0;
+    @Consume(uri="timer:order")
+    public String produce(String s){
+        return "" + number++;
     }
 
 
